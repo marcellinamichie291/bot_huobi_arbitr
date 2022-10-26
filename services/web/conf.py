@@ -1,0 +1,12 @@
+import os
+
+
+SECRET_KEY = 'dfkFFSd112df$$&jfd#@'
+
+SQLALCHEMY_TRACK_MODIFICATIONS = False
+
+DATABASE_URL = os.getenv('DATABASE_URL')
+SQLALCHEMY_DATABASE_URI = DATABASE_URL
+
+STATIC_FOLDER = f"{os.getenv('APP_FOLDER')}/static"
+MEDIA_FOLDER = f"{os.getenv('APP_FOLDER')}/media"
