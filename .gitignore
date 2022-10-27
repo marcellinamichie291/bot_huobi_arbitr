@@ -1,5 +1,6 @@
 .env*
 *.jpg
+migrations/
 *.xls*
 celerybeat-schedule
 __pycache__/

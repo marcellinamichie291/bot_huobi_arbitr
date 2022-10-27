@@ -32,7 +32,7 @@ class CurrencyPair(db.Model):
 
     bundle_list = db.relationship(
         'Bundle', 
-        back_populates='currencies_list',
+        back_populates='pairs_list',
         secondary=pair_bundle)
 
     def method(self):
@@ -47,7 +47,8 @@ class Bundle(db.Model):
 
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String)
-    currencies_list = db.relationship(
+    pairs_order = db.Column(db.String, nullable=False)
+    pairs_list = db.relationship(
         'CurrencyPair', 
         back_populates='bundle_list',
         secondary=pair_bundle

@@ -11,7 +11,7 @@ from flask_admin.menu import MenuLink
 from flask_admin.model.helpers import get_mdict_item_or_list
 from flask_login import current_user, login_user, logout_user
 from markupsafe import Markup
-from wtforms import StringField, TextAreaField
+from wtforms import HiddenField, StringField, TextAreaField
 from wtforms.validators import DataRequired, Regexp
 from werkzeug.security import generate_password_hash
 from sqlalchemy import and_, func, or_
@@ -119,6 +119,7 @@ class ButtonView(ModelView):
 
 
 class CurrencyPairView(ModelView):
+    column_display_pk = True
     column_exclude_list = ('bundle',)
 
     def on_model_change(self, form, model, is_created):
@@ -127,9 +128,21 @@ class CurrencyPairView(ModelView):
 
 
 class BundleView(ModelView):
+
+    form_overrides = dict(pairs_order=HiddenField)
+
+    @property
+    def extra_js(self):
+        with self.admin.app.app_context():
+            url = url_for('static', filename='js/custom.js')
+        return [url]
+
     def on_model_change(self, form, model, is_created):
         if not model.name:
-            model.name = ' > '.join([curr.pair for curr in model.currencies_list])
+            model.name = ' > '.join([curr.pair for curr in model.pairs_list])
+
+        if model.pairs_order.endswith(','):
+            model.pairs_order = model.pairs_order[:-1]
 
 
 
