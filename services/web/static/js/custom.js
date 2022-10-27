@@ -4,7 +4,7 @@
 
     let selected = [];
 
-    $('#pairs_list').change(function() {
+    $('#pairs_list_raw').change(function() {
         // var selected_list = $(this).val().join();
 
         const values = $(this).val();

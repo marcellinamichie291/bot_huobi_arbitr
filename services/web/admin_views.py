@@ -128,7 +128,7 @@ class CurrencyPairView(ModelView):
 
 
 class BundleView(ModelView):
-
+    column_display_pk = True
     form_overrides = dict(pairs_order=HiddenField)
 
     @property

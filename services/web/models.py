@@ -32,7 +32,7 @@ class CurrencyPair(db.Model):
 
     bundle_list = db.relationship(
         'Bundle', 
-        back_populates='pairs_list',
+        back_populates='pairs_list_raw',
         secondary=pair_bundle)
 
     def method(self):
@@ -48,11 +48,27 @@ class Bundle(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String)
     pairs_order = db.Column(db.String, nullable=False)
-    pairs_list = db.relationship(
+    pairs_list_raw = db.relationship(
         'CurrencyPair', 
         back_populates='bundle_list',
         secondary=pair_bundle
     )
+
+    def _get_pair(self, pair_id):
+        for pair in self.pairs_list_raw:
+            if pair.id == pair_id:
+                return pair
+        raise ValueError(f'Не найдена пара с айди {pair_id} для сортировки')
+
+    @property
+    def pairs_list(self):
+        p_order = list(map(int, self.pairs_order.split(',')))
+        sorted_list = list()
+        for pair_id in p_order:
+            pair = self._get_pair(pair_id)
+            sorted_list.append(pair)
+        return sorted_list
+
 
     def __repr__(self) -> str:
         return super().__repr__()
