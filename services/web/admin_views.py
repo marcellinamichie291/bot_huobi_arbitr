@@ -131,6 +131,8 @@ class BundleView(ModelView):
     column_display_pk = True
     form_overrides = dict(pairs_order=HiddenField)
 
+    # form_columns = ('pairs_list_raw', 'name')
+
     @property
     def extra_js(self):
         with self.admin.app.app_context():
