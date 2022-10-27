@@ -1,4 +1,5 @@
 from flask_login import UserMixin
+from sqlalchemy.orm import reconstructor
 from werkzeug.security import check_password_hash
 
 from db import db
@@ -54,6 +55,15 @@ class Bundle(db.Model):
         secondary=pair_bundle
     )
 
+
+    def __init__(self, *args, **kwargs) -> None:
+        self._pairs_list = None
+
+    @reconstructor
+    def init_on_load(self, *args, **kwargs):
+        self._pairs_list = None
+
+
     def _get_pair(self, pair_id):
         for pair in self.pairs_list_raw:
             if pair.id == pair_id:
@@ -62,15 +72,33 @@ class Bundle(db.Model):
 
     @property
     def pairs_list(self):
+        if self._pairs_list:
+            return self._pairs_list
+
+        print('Сортируем пары')
         p_order = list(map(int, self.pairs_order.split(',')))
         sorted_list = list()
         for pair_id in p_order:
             pair = self._get_pair(pair_id)
             sorted_list.append(pair)
+
+        self._pairs_list = sorted_list
         return sorted_list
 
+    @property
+    def main_currency(self) -> str:
+        """
+        Вычисляем валюту, которая идёт на вход, и которая выходит
+        """
+        curr_list = [pair.pair for pair in self.pairs_list]
+        start_set = set(curr_list[0].split('/'))
+        end_set = set(curr_list[-1].split('/'))
+        main_currency_set = start_set & end_set
+        return main_currency_set.pop()
 
 
+    def from_curr(self):
+        pass
 
 
 
