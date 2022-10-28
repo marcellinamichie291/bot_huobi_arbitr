@@ -107,7 +107,7 @@ class Bundle(db.Model):
             return 'division'
         elif from_curr == pair.split('/')[0]:
             return 'multiplication'
-        return 'error'
+        raise ValueError(f'Невозможно вычислить метод: from_curr={from_curr}; pair={pair}')
 
     def in_usdt(self, currency_name, sum):
         """
