@@ -130,8 +130,10 @@ class CurrencyPairView(ModelView):
 class BundleView(ModelView):
     column_display_pk = True
     form_overrides = dict(pairs_order=HiddenField)
+    column_list = ('id', 'name', 'sum')
 
-    # form_columns = ('pairs_list_raw', 'name')
+    column_descriptions = dict(
+        sum='Сумма в валюте входа и выхода. Например для связки LINK/ETH > LINK/BTC > ETH/BTC будет сумма в ETH')
 
     @property
     def extra_js(self):

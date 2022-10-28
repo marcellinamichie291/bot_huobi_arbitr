@@ -49,22 +49,19 @@ class Bundle(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String)
     pairs_order = db.Column(db.String, nullable=False)
+    sum = db.Column(db.Numeric(asdecimal=False), nullable=False)
     pairs_list_raw = db.relationship(
         'CurrencyPair', 
         back_populates='bundle_list',
         secondary=pair_bundle
     )
 
-
     def __init__(self, *args, **kwargs) -> None:
         self._pairs_list = None
-        self.start_sum = 15
 
     @reconstructor
     def init_on_load(self, *args, **kwargs):
         self._pairs_list = None
-        self.start_sum = 15
-
 
     def _get_pair(self, pair_id):
         for pair in self.pairs_list_raw:
@@ -132,11 +129,11 @@ class Bundle(db.Model):
         Вычисляем спред в основной валюте или в USDT
         """
         if usdt:
-            start_sum = self.in_usdt(self.main_currency, self.start_sum)
+            start_sum = self.in_usdt(self.main_currency, self.sum)
             end_sum = self.in_usdt(self.main_currency, self.calc_end_result())
             return round(end_sum / start_sum * 100 - 100, 2)
 
-        return round(self.calc_end_result() / self.start_sum * 100 - 100, 2)
+        return round(self.calc_end_result() / self.sum * 100 - 100, 2)
         
     def calc_end_result(self):
         """
@@ -145,7 +142,7 @@ class Bundle(db.Model):
         """
         from_curr = self.main_currency
 
-        result = self.start_sum
+        result = self.sum
         for pair in self.pairs_list:
             method = self.get_method(from_curr, pair.pair)
             if method == 'division':
