@@ -1,6 +1,7 @@
 .env*
 *.jpg
 migrations/
+*.json
 *.xls*
 celerybeat-schedule
 __pycache__/

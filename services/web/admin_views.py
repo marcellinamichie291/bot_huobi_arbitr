@@ -120,11 +120,15 @@ class ButtonView(ModelView):
 
 class CurrencyPairView(ModelView):
     column_display_pk = True
-    column_exclude_list = ('bundle',)
+    column_exclude_list = ('bundle', 'ticker')
+    form_excluded_columns = ('ticker',)
+    column_default_sort = ('id')
+    
+    form_widget_args = dict(ticker=dict(required=False))
 
     def on_model_change(self, form, model, is_created):
         model.pair = model.pair.upper()
-
+        model.ticker = model.pair.replace('/', '')
 
 
 class BundleView(ModelView):

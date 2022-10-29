@@ -9,6 +9,7 @@ from admin_views import *
 from db import db
 
 
+
 logging.basicConfig(
     format='%(asctime)s - %(levelname)s - %(funcName)s - %(message)s',
     level = logging.INFO,

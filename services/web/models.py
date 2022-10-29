@@ -29,15 +29,23 @@ class CurrencyPair(db.Model):
 
     id = db.Column(db.Integer, primary_key=True)
     pair = db.Column(db.String, nullable=False, unique=True)
+    ticker = db.Column(db.String)
     rate = db.Column(db.Numeric(asdecimal=False), nullable=False, default=1)
+    status = db.Column(db.String, nullable=False, default='ok')
 
     bundle_list = db.relationship(
         'Bundle', 
         back_populates='pairs_list_raw',
         secondary=pair_bundle)
 
-    def method(self):
-        pass
+
+
+
+    def ppp(self):
+        if self.status == 'invalid symbol':
+            pass
+
+
 
     def __repr__(self) -> str:
         return f'<{self.pair}>'
