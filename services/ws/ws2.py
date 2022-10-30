@@ -46,9 +46,12 @@ def handle_invalid_symbol(ws, session, data):
         pair.rate = 1 / reversed_pair.rate
 
     else:
+        # создаём пару, по которой будем принимать курсы и
+        # делаем в ней ссылку на пару, по которой нет курса
         reversed_pair = CurrencyPair(
             pair=rev_pair,
-            ticker=rev_pair.replace('/', '')
+            ticker=rev_pair.replace('/', ''),
+            reversed_pair_id=pair.id
         )
         session.add(reversed_pair)
 
@@ -57,11 +60,12 @@ def handle_invalid_symbol(ws, session, data):
 
 
 
-def update_invalid_symbols():
+def update_invalid_symbols(pair):
     """
-    Обновляет перевёрнутые пары
+    Обновляет перевёрнутые пары, по которым
+    нет курсов на huobi
     """
-    pass
+    pair.reversed_pair.rate = 1 / pair.rate
 
 
 
@@ -88,8 +92,8 @@ def on_message(ws, message):
         )
         pair.rate = price
 
-
-
+        if pair.reversed_pair:
+            update_invalid_symbols(pair)
 
     elif 'subbed' in data:
         print(f'Подписались на канал: {data["subbed"]}')

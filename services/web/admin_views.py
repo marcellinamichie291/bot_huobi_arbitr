@@ -121,7 +121,7 @@ class ButtonView(ModelView):
 class CurrencyPairView(ModelView):
     column_display_pk = True
     column_exclude_list = ('bundle', 'ticker')
-    form_excluded_columns = ('ticker',)
+    form_excluded_columns = ('ticker', 'reversed_pair', 'huobi_pair', 'bundle_list')
     column_default_sort = ('id')
     
     form_widget_args = dict(ticker=dict(required=False))

@@ -31,12 +31,18 @@ class CurrencyPair(db.Model):
     pair = db.Column(db.String, nullable=False, unique=True)
     ticker = db.Column(db.String)
     rate = db.Column(db.Numeric(asdecimal=False), nullable=False, default=1)
+    reversed_pair_id = db.Column(db.Integer, db.ForeignKey('currency_pair.id'))
     status = db.Column(db.String, nullable=False, default='ok')
 
     bundle_list = db.relationship(
         'Bundle', 
         back_populates='pairs_list_raw',
         secondary=pair_bundle)
+
+    reversed_pair = db.relationship(
+        'CurrencyPair', 
+        remote_side='CurrencyPair.id',
+        backref='huobi_pair')
 
 
 

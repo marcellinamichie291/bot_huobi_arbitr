@@ -23,12 +23,18 @@ class CurrencyPair(Base):
     pair = Column(String, nullable=False, unique=True)
     ticker = Column(String)
     rate = Column(Numeric(asdecimal=False), nullable=False, default=1)
+    reversed_pair_id = Column(Integer, ForeignKey('currency_pair.id'))
     status = Column(String, nullable=False, default='ok')
 
     bundle_list = relationship(
         'Bundle', 
         back_populates='pairs_list_raw',
         secondary=pair_bundle)
+
+    reversed_pair = relationship(
+        'CurrencyPair', 
+        remote_side='CurrencyPair.id',
+        backref='huobi_pair')
 
     def ppp(self):
         if self.status == 'invalid symbol':
