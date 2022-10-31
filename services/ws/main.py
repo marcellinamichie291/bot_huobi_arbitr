@@ -23,9 +23,12 @@ def on_open(ws):
         ws.send(json.dumps({"sub": f"market.{ticker}.ticker"}))
 
 
-
-
 def handle_invalid_symbol(ws, session, data):
+    """
+    Обрабатывает случай, когда такой пары нет в хуоби.
+    Нарпример, USDT/LINK нет в хуоби, поэтому она вычисляется
+    как (1 / LINK/USDT)
+    """
     ticker = data['err-msg'].split()[-1].upper()
 
     pair = (
@@ -59,7 +62,6 @@ def handle_invalid_symbol(ws, session, data):
         ws.send(json.dumps({"sub": f"market.{ticker}.ticker"}))
 
 
-
 def update_invalid_symbols(pair):
     """
     Обновляет перевёрнутые пары, по которым
@@ -82,8 +84,7 @@ def on_message(ws, message):
     elif 'ch' in data:
         ticker = data['ch'].replace('market.', '').replace('.ticker', '')
         price = data['tick']['lastPrice']
-        print(price)
-
+        # print(price)
 
         pair = (
             session.query(CurrencyPair)
@@ -100,14 +101,11 @@ def on_message(ws, message):
     elif 'err-msg' in data and 'invalid symbol' in data['err-msg']:
         print(data['err-msg'])
         handle_invalid_symbol(ws, session, data)
-        # pass
     else:
         print(f'Неизвестный ответ сервера: {data}')
 
-
     session.commit()
     session.close()
-
 
 
 def on_error(ws, error):
@@ -116,8 +114,6 @@ def on_error(ws, error):
 
 def on_close(ws, close_status_code, close_msg):
     print("### closed ###")
-
-
 
 
 if __name__ == "__main__":

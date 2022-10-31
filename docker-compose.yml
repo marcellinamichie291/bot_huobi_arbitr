@@ -23,6 +23,51 @@ services:
     depends_on:
       - db
 
+  redis:
+    image: 'redis:7.0.5'
+    env_file:
+      - ./.env.dev
+    command:
+      - /bin/sh
+      - -c
+      # - Double dollars, so that the variable is not expanded by Docker Compose
+      # - Surround by quotes, so that the shell does not split the password
+      # - The ${variable:?message} syntax causes shell to exit with a non-zero
+      #   code and print a message, when the variable is not set or empty
+      - redis-server --requirepass "$${REDIS_PASSWORD:?REDIS_PASSWORD variable is not set}"
+    ports:
+      - 6379:6379
+    volumes:
+      - redis:/data
+
+  celery_worker:
+    build:
+      context: ./services/web
+    env_file:
+      - ./.env.dev
+    entrypoint: celery
+    command: -A tasks worker --loglevel=info
+    volumes:
+      - ./services/web:/usr/src/web
+    links:
+      - redis
+    depends_on:
+      - redis
+
+  celery_beat:
+    build:
+      context: ./services/web
+    env_file:
+      - ./.env.dev
+    entrypoint: celery
+    command: -A tasks beat -l info
+    volumes:
+      - ./services/web:/usr/src/web
+    links:
+      - redis
+    depends_on:
+      - redis
+
   db:
     image: postgres:13-alpine
     volumes:
@@ -31,5 +76,7 @@ services:
       - POSTGRES_USER=bot_huobi_arbitr
       - POSTGRES_PASSWORD=1111
       - POSTGRES_DB=bot_huobi_arbitr
+
 volumes:
   postgres_data:
+  redis:

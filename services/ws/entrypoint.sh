@@ -11,7 +11,8 @@ then
     echo "PostgreSQL started"
 fi
 
-tail -f /dev/null
+# tail -f /dev/null
+python main.py
 
 
 exec "$@"
