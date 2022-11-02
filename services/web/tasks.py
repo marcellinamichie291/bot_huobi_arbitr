@@ -19,6 +19,13 @@ logging.basicConfig(
     )
 
 
+
+
+
+
+
+
+
 def make_celery(app):
     celery = Celery(app.import_name)
     celery.conf.timezone = 'Europe/Moscow'
