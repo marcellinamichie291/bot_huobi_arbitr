@@ -121,7 +121,7 @@ class ButtonView(ModelView):
 class CurrencyPairView(ModelView):
     column_display_pk = True
     column_exclude_list = ('bundle', 'ticker')
-    form_excluded_columns = ('ticker', 'reversed_pair', 'huobi_pair', 'bundle_list')
+    form_excluded_columns = ('ticker', 'reversed_pair', 'huobi_pair', 'bundle_list', 'status', 'rate')
     column_default_sort = ('id')
     
     form_widget_args = dict(ticker=dict(required=False))
@@ -134,7 +134,8 @@ class CurrencyPairView(ModelView):
 class BundleView(ModelView):
     column_display_pk = True
     form_overrides = dict(pairs_order=HiddenField)
-    column_list = ('id', 'name', 'sum')
+    column_list = ('id', 'name', 'sum', 'status')
+    form_excluded_columns = ('name', 'status')
 
     column_descriptions = dict(
         sum='Сумма в валюте входа и выхода. Например для связки LINK/ETH > LINK/BTC > ETH/BTC будет сумма в ETH')

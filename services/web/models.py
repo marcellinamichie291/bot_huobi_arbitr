@@ -73,6 +73,7 @@ class Bundle(db.Model):
     name = db.Column(db.String)
     pairs_order = db.Column(db.String, nullable=False)
     sum = db.Column(db.Numeric(asdecimal=False), nullable=False)
+    status = db.Column(db.String, nullable=False, default='ok')
     pairs_list_raw = db.relationship(
         'CurrencyPair', 
         back_populates='bundle_list',
@@ -110,7 +111,7 @@ class Bundle(db.Model):
         main_currency_set = start_set & end_set
 
         if not main_currency_set:
-            raise ValueError(f'Невозможно вычислить валюту входа и выхода')
+            raise ValueError('Невозможно вычислить валюту входа и выхода')
 
         return main_currency_set.pop()
 
@@ -119,7 +120,8 @@ class Bundle(db.Model):
             return 'division'
         elif from_curr == pair.split('/')[0]:
             return 'multiplication'
-        raise ValueError(f'Невозможно вычислить метод: from_curr={from_curr}; pair={pair}')
+
+        return f'Error: Неверно задана цепочка пар: {from_curr} > {pair}'
 
     def in_usdt(self, currency_name, sum):
         """
@@ -154,7 +156,7 @@ class Bundle(db.Model):
         spread = round(end_result / self.sum * 100 - 100, 2)
         logging.info(f'СПРЕД: {spread}')
         return spread
-        
+
     def calc_end_result(self):
         """
         Вычисляем конечный результат после прохода 
@@ -186,6 +188,9 @@ class Bundle(db.Model):
 
                 logging.info(f'result: {result}')
                 from_curr = to_curr
+
+            elif 'Error' in method:
+                raise ValueError(method)
 
         return result
 

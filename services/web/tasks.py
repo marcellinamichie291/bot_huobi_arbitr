@@ -40,7 +40,11 @@ app = make_celery(flaskapp)
 @app.task
 def check_spread():
     for bundle in Bundle.query:
-        print(f'************* SPREAD по связке {bundle.name}: {bundle.spread()}')
+        try:
+            print(f'************* SPREAD по связке {bundle.name}: {bundle.spread()}')
+        except Exception as exc:
+            bundle.status = str(exc)
+            db.session.commit()
 
 
 @app.on_after_configure.connect
