@@ -108,9 +108,11 @@ def on_message(ws, message):
 
     elif 'subbed' in data:
         print(f'Подписались на канал: {data["subbed"]}')
+
     elif 'err-msg' in data and 'invalid symbol' in data['err-msg']:
         print(data['err-msg'])
         handle_invalid_symbol(ws, session, data)
+
     else:
         print(f'Неизвестный ответ сервера: {data}')
 
