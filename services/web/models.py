@@ -41,7 +41,7 @@ class CurrencyPair(db.Model):
     ticker = db.Column(db.String)
     rate = db.Column(db.Numeric(asdecimal=False), nullable=False, default=1)
     reversed_pair_id = db.Column(db.Integer, db.ForeignKey('currency_pair.id'))
-    status = db.Column(db.String, nullable=False, default='ok')
+    status = db.Column(db.String, nullable=False, default='new')
 
     bundle_list = db.relationship(
         'Bundle', 

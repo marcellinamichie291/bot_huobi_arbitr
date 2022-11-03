@@ -21,6 +21,10 @@ def on_open(ws):
     for pair in session.query(CurrencyPair):
         ticker = pair.pair.replace('/', '').lower()
         ws.send(json.dumps({"sub": f"market.{ticker}.ticker"}))
+        pair.status = 'ok'
+    
+    session.commit()
+    session.close()
 
 
 def handle_invalid_symbol(ws, session, data):
@@ -47,6 +51,7 @@ def handle_invalid_symbol(ws, session, data):
     )
     if reversed_pair:
         pair.rate = 1 / reversed_pair.rate
+        reversed_pair.reversed_pair = pair
 
     else:
         # создаём пару, по которой будем принимать курсы и
@@ -70,12 +75,17 @@ def update_invalid_symbols(pair):
     pair.reversed_pair.rate = 1 / pair.rate
 
 
-
 def on_message(ws, message):
     data = json.loads(gzip.decompress(message))
 
     Session = sessionmaker(bind=engine)
     session = Session()
+
+    # проверяем или в админке не появились новые пары
+    for pair in session.query(CurrencyPair).filter_by(status='new'):
+        ticker = pair.pair.replace('/', '').lower()
+        ws.send(json.dumps({"sub": f"market.{ticker}.ticker"}))
+        pair.status = 'ok'
     
     if 'ping' in data:
         ws.send(json.dumps({'pong': data['ping']}))
