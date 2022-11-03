@@ -39,6 +39,7 @@ admin.init_app(app)
 
 admin.add_view(CurrencyPairView(CurrencyPair, db.session, name='Пары'))
 admin.add_view(BundleView(Bundle, db.session, name='Связки'))
+admin.add_view(SettingsView(Settings, db.session))
 admin.add_view(AdminView(AdminModel, db.session, name='Админ'))
 
 admin.add_link(LoginMenuLink(name='Логин', category='', url='/admin/login'))

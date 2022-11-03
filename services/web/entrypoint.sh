@@ -11,7 +11,7 @@ then
     echo "PostgreSQL started"
 fi
 
-python create_db.py && tail -f /dev/null
+python create_db.py
 # /bin/bash
 
 exec "$@"

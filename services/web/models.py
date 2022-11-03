@@ -1,8 +1,17 @@
+import logging
+
 from flask_login import UserMixin
 from sqlalchemy.orm import object_session, reconstructor
 from werkzeug.security import check_password_hash
 
 from db import db
+
+
+logging.basicConfig(
+    format='%(asctime)s - %(levelname)s - %(funcName)s - %(message)s',
+    level=logging.INFO,
+    filename='log.log'
+    )
 
 
 pair_bundle = db.Table(
@@ -70,13 +79,6 @@ class Bundle(db.Model):
         secondary=pair_bundle
     )
 
-    def __init__(self, *args, **kwargs) -> None:
-        self._pairs_list = None
-
-    @reconstructor
-    def init_on_load(self, *args, **kwargs):
-        self._pairs_list = None
-
     def _get_pair(self, pair_id):
         for pair in self.pairs_list_raw:
             if pair.id == pair_id:
@@ -85,17 +87,16 @@ class Bundle(db.Model):
 
     @property
     def pairs_list(self):
-        if self._pairs_list:
-            return self._pairs_list
-
-        print('Сортируем пары')
+        """
+        Сортируем пары, чтобы были в том 
+        порядке, как их задали в админке
+        """
         p_order = list(map(int, self.pairs_order.split(',')))
         sorted_list = list()
         for pair_id in p_order:
             pair = self._get_pair(pair_id)
             sorted_list.append(pair)
 
-        self._pairs_list = sorted_list
         return sorted_list
 
     @property
@@ -147,7 +148,12 @@ class Bundle(db.Model):
             end_sum = self.in_usdt(self.main_currency, self.calc_end_result())
             return round(end_sum / start_sum * 100 - 100, 2)
 
-        return round(self.calc_end_result() / self.sum * 100 - 100, 2)
+        end_result = self.calc_end_result()
+        logging.info(f'Вычисляем СПРЕД: {end_result} / {self.sum} * 100 - 100')
+
+        spread = round(end_result / self.sum * 100 - 100, 2)
+        logging.info(f'СПРЕД: {spread}')
+        return spread
         
     def calc_end_result(self):
         """
@@ -160,23 +166,36 @@ class Bundle(db.Model):
         for pair in self.pairs_list:
             method = self.get_method(from_curr, pair.pair)
             if method == 'division':
+                to_curr = pair.pair.split('/')[0]
+
+                logging.info(f'Переводим {from_curr} в {to_curr}')
+                logging.info(f'result = {result} / {pair.rate}')
+
                 result /= pair.rate
-                from_curr = pair.pair.split('/')[0]
+
+                logging.info(f'result: {result}')
+                from_curr = to_curr
 
             elif method == 'multiplication':
+                to_curr = pair.pair.split('/')[-1]
+
+                logging.info(f'Переводим {from_curr} в {to_curr}')
+                logging.info(f'result = {result} * {pair.rate}')
+
                 result *= pair.rate
-                from_curr = pair.pair.split('/')[-1]
+
+                logging.info(f'result: {result}')
+                from_curr = to_curr
 
         return result
 
-
-
-
-
-
-
-
-
-
     def __repr__(self) -> str:
-        return super().__repr__()
+        return f'<{self.name}>'
+
+
+class Settings(db.Model):
+    __tablename__ = 'settings'
+
+    id = db.Column(db.Integer, primary_key=True)
+    key = db.Column(db.String, nullable=False)
+    value = db.Column(db.String)

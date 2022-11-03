@@ -10,6 +10,7 @@ from sqlalchemy import and_, func
 # from conf import REDIS_PASSWORD
 from flaskapp import app as flaskapp
 from db import db
+from models import Bundle
 
 
 logging.basicConfig(
@@ -17,13 +18,6 @@ logging.basicConfig(
     level=logging.INFO,
     filename='log.log'
     )
-
-
-
-
-
-
-
 
 
 def make_celery(app):
@@ -43,13 +37,10 @@ def make_celery(app):
 app = make_celery(flaskapp)
 
 
-
-
 @app.task
 def check_spread():
-    print('check sssssssssssssspppppread')
-
-
+    for bundle in Bundle.query:
+        print(f'************* SPREAD по связке {bundle.name}: {bundle.spread()}')
 
 
 @app.on_after_configure.connect

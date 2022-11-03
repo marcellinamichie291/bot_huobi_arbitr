@@ -17,7 +17,7 @@ from werkzeug.security import generate_password_hash
 from sqlalchemy import and_, func, or_
 
 from forms import LoginForm
-from models import AdminModel, Bundle, CurrencyPair
+from models import AdminModel, Bundle, CurrencyPair, Settings
 
 from db import db
 
@@ -152,6 +152,9 @@ class BundleView(ModelView):
         if model.pairs_order.endswith(','):
             model.pairs_order = model.pairs_order[:-1]
 
+
+class SettingsView(ModelView):
+    pass
 
 
 class AdminView(ModelView):
